@@ -17,3 +17,8 @@ export function formatPrice(
     maximumFractionDigits: 0
   }).format(Number(price));
 }
+export function isArrayOfFile(files: unknown): files is File[] {
+  const isArray = Array.isArray(files)
+  if (!isArray) return false
+  return files.every((file) => file instanceof File)
+}

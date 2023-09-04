@@ -10,10 +10,16 @@ import { getSubcategories, productsCategories } from "@/config/products";
 import { uploadProductSchema } from "@/lib/validations/product";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { trpc } from "@/trpc-server";
+import { isArrayOfFile } from "@/lib/utils";
+import { uploadImage } from "@/trpc-server/routers/app";
 
 type Inputs = z.infer<typeof uploadProductSchema>
 
 const UploadProductForm = ({ }) => {
+
+  const mutation = trpc.productUpload.useMutation()
+
   const form = useForm<Inputs>({
     resolver: zodResolver(uploadProductSchema),
     defaultValues: {
@@ -21,16 +27,29 @@ const UploadProductForm = ({ }) => {
       description: "",
       category: "clothing",
       subCategory: "",
-      price: 0,
-      quantity: 0,
 
     }
   })
 
   const subCategories = getSubcategories(form.watch("category"))
 
-  function onSubmit(data: Inputs) {
-    toast({ description: JSON.stringify(data) })
+  async function onSubmit(data: Inputs) {
+    if (!data) return
+
+    const formData = new FormData()
+    for (let i = 0; i < data.images.length; i++) {
+
+      // Append the object as JSON to the FormData with a unique key
+      formData.append(`files${i}`, data.images[i]);
+    } formData.append("name", data.name);
+    const res = await fetch("/api/uploadFiles", {
+      method: "POST",
+      body: formData,
+    }).then(res => res.json())
+    const links = await res.imageLinks
+    await mutation.mutateAsync({ ...data, images: links })
+    // await mutation.mutateAsync(data)
+    toast({ description: "success" })
   }
 
   return <Form {...form}>
@@ -143,7 +162,6 @@ const UploadProductForm = ({ }) => {
               <FormControl>
                 <Input
                   {...field}
-                  value={Number(field.value)}
                   type="number"
                   placeholder="Type product quantity here."
                   className=""
@@ -153,7 +171,26 @@ const UploadProductForm = ({ }) => {
             </FormItem>
           )}
         />
-
+        <FormField
+          control={form.control}
+          name="images"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Images</FormLabel>
+              <FormControl>
+                <Input
+                  onChange={(e) => field.onChange(e.target.files)}
+                  multiple
+                  type="file"
+                  accept="image/*"
+                  placeholder="Upload product images here."
+                  className=""
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </div>
       <Button size="sm" type="submit">Add Product</Button>
     </form>

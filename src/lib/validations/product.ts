@@ -6,11 +6,11 @@ export const uploadProductSchema = z.object({
     .min(1, { message: "Must be at least 1 character" })
     .max(50, { message: "Must be less than 50 characters" }),
   description: z.string().optional(),
-  price: z
+  price: z.coerce
     .number()
     .min(1, { message: "Must be at least 1" })
     .max(1000000, { message: "Must be less than 1,000,000" }),
-  quantity: z
+  quantity: z.coerce
     .number()
     .min(1, { message: "Must be at least 1" })
     .max(1000000, { message: "Must be less than 1,000,000" }),
@@ -22,4 +22,9 @@ export const uploadProductSchema = z.object({
     .string()
     .min(1, { message: "Must select subcategory" })
     .max(50, { message: "Must be less than 50 characters" }),
+  images: z.any()
+    .refine((file: File) => file?.length !== 0, "File is required")
+
 });
+
+

@@ -1,4 +1,4 @@
-import UploadProductForm from "@/components/cards/upload-product-form";
+import UploadProductForm from "@/components/forms/upload-product-form";
 import { Shell } from "@/components/shells/shell";
 import {
   Card,
