@@ -1,45 +1,86 @@
+"use client";
+import { Icons } from "@/components/icons";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { FC } from "react";
+import { FC, useState } from "react";
 
-interface PreviewImagesProps { }
+interface PreviewImagesProps {
+  images: string[];
+}
 
-const PreviewImages: FC<PreviewImagesProps> = ({ }) => {
+
+
+const PreviewImages: FC<PreviewImagesProps> = ({ images }) => {
+  const [mainImage, setMainImage] = useState(images[0]);
+
+  const toggleImage = (type: string) => {
+    if (type === "increment") {
+      const index = images.indexOf(mainImage);
+      if (index === images.length - 1) {
+        setMainImage(images[0]);
+      } else {
+        setMainImage(images[index + 1]);
+      }
+    } else {
+      const index = images.indexOf(mainImage);
+      if (index === 0) {
+        setMainImage(images[images.length - 1]);
+      } else {
+        setMainImage(images[index - 1]);
+      }
+    }
+  };
+
   return (
-    <div className="flex flex-col gap-y-3">
-      <Image
-        className="w-[550px] h-[550px] rounded-lg"
-        width={600}
-        height={600}
-        src="/images/clothes.jpeg"
-        alt="images"
-      />
-      <div className="flex justify-center gap-3">
+    <div className="w-full p-2 justify-center items-center flex flex-col gap-y-3">
+      <div className="min-w-[220px] max-w-[600px]">
         <Image
-          className="w-40 h-40 rounded-lg"
-          width={200}
-          height={200}
-          src="/images/clothes.jpeg"
+          className=" h-[280px] md:h-[320px] lg:h-[610px] object-cover rounded-lg"
+          width={650}
+          height={650}
+          src={mainImage ?? "/images/product-placeholder.webp"}
           alt="images"
         />
-        <Image
-          className="w-40 h-40 rounded-lg"
-          width={200}
-          height={200}
-          src="/images/clothes.jpeg"
-          alt="images"
-        />
-        <Image
-          className="w-40 h-40 rounded-lg"
-          width={200}
-          height={200}
-          src="/images/clothes.jpeg"
-          alt="images"
-        />
-
-
       </div>
-
-
+      {images.length > 1 && (
+        <div className="flex justify-center items-center gap-3">
+          <Button
+            onClick={() => toggleImage("decrement")}
+            size="icon"
+            className="hidden md:flex bg-white hover:bg-gray-100"
+          >
+            <Icons.chevronLeft className="w-8 h-8 lg:h-6 lg:6" color="black" />
+          </Button>
+          {images.map((image) => (
+            <div
+              key={image}
+              className={cn(
+                "w-28 h-28 lg:w-40 lg:h-40 rounded-lg cursor-pointer",
+                {
+                  "ring-2 ring-offset-2 ring-blue-500": mainImage === image,
+                },
+              )}
+            >
+              <Image
+                className="w-28 h-28 lg:w-40 lg:h-40 rounded-lg object-cover"
+                width={200}
+                height={200}
+                src={image ?? "/images/product-placeholder.webp"}
+                alt="images"
+                onClick={() => setMainImage(image)}
+              />
+            </div>
+          ))}
+          <Button
+            onClick={() => toggleImage("increment")}
+            size="icon"
+            className="hidden md:flex bg-white hover:bg-gray-100"
+          >
+            <Icons.chevronRight className="w-8 h-8 lg:h-6 lg:6" color="black" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

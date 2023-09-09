@@ -1,10 +1,9 @@
 "use client";
-import Icon from "@/lib/DynamicIcon";
 import { cn } from "@/lib/utils";
-import { HeartIcon, Minus, Plus, Star } from "lucide-react";
 import Image from "next/image";
 import { FC, useState } from "react";
 import { Button } from "../ui/button";
+import { Icons } from "../icons";
 
 interface FeaturedProductProps { }
 
@@ -43,11 +42,11 @@ const FeaturedProduct: FC<FeaturedProductProps> = ({ }) => {
           Beats Studio3 Wireless Headphone
         </h2>
         <div className="flex gap-x-1">
-          <Star fill="yellow" color="yellow" className="w-5 h-5" />
-          <Star name="star" fill="yellow" color="yellow" className="w-5 h-5" />
-          <Star name="star" fill="yellow" color="yellow" className="w-5 h-5" />
-          <Star name="star" fill="yellow" color="yellow" className="w-5 h-5" />
-          <Star name="star" fill="yellow" color="yellow" className="w-5 h-5" />
+          <Icons.star fill="yellow" color="yellow" className="w-5 h-5" />
+          <Icons.star name="star" fill="yellow" color="yellow" className="w-5 h-5" />
+          <Icons.star name="star" fill="yellow" color="yellow" className="w-5 h-5" />
+          <Icons.star name="star" fill="yellow" color="yellow" className="w-5 h-5" />
+          <Icons.star name="star" fill="yellow" color="yellow" className="w-5 h-5" />
           <h2 className="text-sm text-gray-700">(2000+ Reviews)</h2>
         </div>
         <p className="text-xs text-gray-700">
@@ -79,7 +78,7 @@ const FeaturedProduct: FC<FeaturedProductProps> = ({ }) => {
               size="icon"
               onClick={() => handleQuantity("decrement")}
             >
-              <Minus
+              <Icons.remove
                 name="minus"
                 className="w-6 h-6 text-gray-700 "
               />
@@ -91,7 +90,7 @@ const FeaturedProduct: FC<FeaturedProductProps> = ({ }) => {
               size="icon"
               onClick={() => handleQuantity("increment")}
             >
-              <Plus
+              <Icons.add
                 name="plus"
                 className="w-6 h-6  text-gray-700 "
               />
@@ -102,8 +101,7 @@ const FeaturedProduct: FC<FeaturedProductProps> = ({ }) => {
           <Button
             onClick={handleFavorite}
             variant="outline" className={`w-16 h-10 `}>
-            <HeartIcon
-              name="shopping-cart"
+            <Icons.heart
               className={cn(`w-6 h-6 fill-white ${textVariants[color]}`, {
                 [fillVariants[color]]: isFavorite,
               })}

@@ -5,14 +5,19 @@ import { toast } from "../ui/use-toast";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { getSubcategories, productsCategories } from "@/config/products";
 import { uploadProductSchema } from "@/lib/validations/product";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { trpc } from "@/trpc-server";
-import { isArrayOfFile } from "@/lib/utils";
-import { uploadImage } from "@/trpc-server/routers/app";
+import FileDialog from "../FileDialog";
+import { useState, useTransition } from "react";
+import { FileWithPreview } from "@/types";
+import { uploadImages } from "@/_actions/uploadImages";
+import { Zoom } from "../zoom-image";
+import Image from "next/image";
+import { Icons } from "../icons";
 
 type Inputs = z.infer<typeof uploadProductSchema>
 
@@ -23,37 +28,33 @@ const UploadProductForm = ({ }) => {
   const form = useForm<Inputs>({
     resolver: zodResolver(uploadProductSchema),
     defaultValues: {
-      name: "",
-      description: "",
       category: "clothing",
-      subCategory: "",
-
     }
   })
 
   const subCategories = getSubcategories(form.watch("category"))
 
-  async function onSubmit(data: Inputs) {
+  const [files, setFiles] = useState<FileWithPreview[] | null>(null)
+  const [isPending, startTransition] = useTransition()
+  function onSubmit(data: Inputs) {
     if (!data) return
+    startTransition(async () => {
+      const formData = new FormData()
+      for (let i = 0; i < data.images.length; i++) {
+        formData.append(`files${i}`, data.images[i]);
+      }
+      const links = await uploadImages(formData)
+      await mutation.mutateAsync({ ...data, images: links })
+      form.resetField()
+      setFiles(null)
+      toast({ description: "Successully added product." })
 
-    const formData = new FormData()
-    for (let i = 0; i < data.images.length; i++) {
+    })
 
-      // Append the object as JSON to the FormData with a unique key
-      formData.append(`files${i}`, data.images[i]);
-    } formData.append("name", data.name);
-    const res = await fetch("/api/uploadFiles", {
-      method: "POST",
-      body: formData,
-    }).then(res => res.json())
-    const links = await res.imageLinks
-    await mutation.mutateAsync({ ...data, images: links })
-    // await mutation.mutateAsync(data)
-    toast({ description: "success" })
   }
 
   return <Form {...form}>
-    <form autoFocus={false} className="space-y-2" onSubmit={form.handleSubmit(onSubmit)}>
+    <form autoFocus={false} className="flex flex-col space-y-4" onSubmit={(...args) => void form.handleSubmit(onSubmit)(...args)}>
       <FormField
         control={form.control}
         name="name"
@@ -102,10 +103,11 @@ const UploadProductForm = ({ }) => {
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    {productsCategories.map(item => (
-                      <SelectItem key={item.title} value={item.title.toLowerCase()} >{item.title}</SelectItem>
-
-                    ))}
+                    <SelectGroup>
+                      {productsCategories.map(item => (
+                        <SelectItem key={item.title} value={item.title.toLowerCase()} >{item.title}</SelectItem>
+                      ))}
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
               </FormControl>
@@ -120,14 +122,16 @@ const UploadProductForm = ({ }) => {
             <FormItem>
               <FormLabel>Subcategory</FormLabel>
               <FormControl>
-                <Select defaultValue={field.value?.toString()} onValueChange={(value) => field.onChange(value)} >
+                <Select value={field.value?.toString()} onValueChange={field.onChange} >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
+                    <SelectValue placeholder="Select a subcategory" />
                   </SelectTrigger>
                   <SelectContent>
-                    {subCategories.map(item => (
-                      <SelectItem key={item.value} value={item.value.toLowerCase()} >{item.label}</SelectItem>
-                    ))}
+                    <SelectGroup>
+                      {subCategories.map(item => (
+                        <SelectItem key={item.value} value={item.value.toLowerCase()} >{item.label}</SelectItem>
+                      ))}
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
               </FormControl>
@@ -171,28 +175,40 @@ const UploadProductForm = ({ }) => {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="images"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Images</FormLabel>
-              <FormControl>
-                <Input
-                  onChange={(e) => field.onChange(e.target.files)}
-                  multiple
-                  type="file"
-                  accept="image/*"
-                  placeholder="Upload product images here."
-                  className=""
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+
       </div>
-      <Button size="sm" type="submit">Add Product</Button>
+      <FormField
+        control={form.control}
+        name="images"
+        render={({ field }) => (
+          <FormItem className="flex w-full flex-col gap-1.5">
+            <FormLabel>Images</FormLabel>
+            {files?.length ? (
+              <div className="flex items-center gap-2">
+                {files.map((file, i) => (
+                  <Zoom key={i}>
+                    <Image
+                      src={file.preview}
+                      alt={file.name}
+                      className="h-20 w-20 shrink-0 rounded-md object-cover object-center"
+                      width={80}
+                      height={80}
+                    />
+                  </Zoom>
+                ))}
+              </div>
+            ) : null}
+
+            <FormControl >
+              <FileDialog name="images" disabled={isPending} setValue={form.setValue} files={files} setFiles={setFiles} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <Button disabled={isPending} size="lg" className="w-36" type="submit">
+        {isPending ? <> <Icons.spinner className="w-4 h-4 mr-2 animate-spin" /> <span> Adding... </span> </> : "Add Product"}
+      </Button>
     </form>
   </Form>
 };

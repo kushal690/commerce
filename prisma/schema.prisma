@@ -62,3 +62,37 @@ model Newsletter {
   email      String   @unique
   subscribed DateTime @default(now())
 }
+
+model Categories {
+  id            String          @id @default(auto()) @map("_id") @db.ObjectId
+  name          String          @unique
+  description   String?
+  slug          String          @unique
+  subCategories SubCategories[]
+  product       Product[]
+}
+
+model SubCategories {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  name         String     @unique
+  description  String?
+  slug         String     @unique
+  categoryName String
+  products     Product[]
+  category     Categories @relation(fields: [categoryName], references: [name], onDelete: Cascade)
+}
+
+model Product {
+  id              String        @id @default(auto()) @map("_id") @db.ObjectId
+  name            String
+  description     String?
+  slug            String        @unique
+  price           Float
+  quantity        Int
+  rating          Float
+  images          String[]
+  subCategoryName String
+  categoryName    String
+  subCategories   SubCategories @relation(fields: [subCategoryName], references: [name], onDelete: Cascade)
+  categories      Categories    @relation(fields: [categoryName], references: [name], onDelete: Cascade)
+}

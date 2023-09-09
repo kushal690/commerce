@@ -1,4 +1,3 @@
-
 import { procedure, router } from "../trpc";
 import prisma from "@/lib/prismaClient";
 import { hash } from "bcryptjs";
@@ -6,11 +5,30 @@ import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { authSchema } from "@/lib/validations/auth";
 import { emailSchema } from "@/lib/validations/email";
-import { BlobServiceClient } from "@azure/storage-blob";
-import { nanoid } from "nanoid";
-import { uploadProductSchema } from "@/lib/validations/product";
+
+import { productIdSchema, uploadProductSchema } from "@/lib/validations/product";
+import { z } from "zod";
 
 export const appRouter = router({
+  getAllProducts: procedure.query(async (opts) => {
+    const products = await prisma.product.findMany({
+      include: {
+        categories: true,
+        subCategories: true,
+      },
+    });
+    return products;
+  }),
+  getProductById: procedure.input(productIdSchema).query(async (opts) => {
+    const product = await prisma.product.findUnique({
+      where: { id: opts.input.id },
+      include: {
+        categories: true,
+        subCategories: true,
+      },
+    });
+    return product;
+  }),
   newsletterSignup: procedure.input(emailSchema).mutation(async (opts) => {
     try {
       await prisma.newsletter.create({
@@ -60,8 +78,8 @@ export const appRouter = router({
       });
     }
   }),
-  productUpload: procedure.input(uploadProductSchema)
-
+  productUpload: procedure
+    .input(uploadProductSchema)
     .mutation(async ({ input }) => {
       const {
         name,
@@ -71,27 +89,56 @@ export const appRouter = router({
         category,
         subCategory,
         images,
-
       } = input;
-      console.log(images);
+      try {
+        let categories = await prisma.categories.findUnique({
+          where: { name: category.toLowerCase() },
+        });
+
+        if (!categories) {
+          categories = await prisma.categories.create({
+            data: {
+              name: category,
+              slug: category.toLowerCase(),
+            },
+          });
+        }
+
+        let subCategories = await prisma.subCategories.findUnique({
+          where: { name: subCategory.toLowerCase() },
+        });
+
+        if (!subCategories) {
+          subCategories = await prisma.subCategories.create({
+            data: {
+              name: subCategory,
+              slug: subCategory.toLowerCase(),
+              categoryName: category,
+            },
+          });
+        }
+        await prisma.product.create({
+          data: {
+            name,
+            description,
+            price,
+            quantity,
+            categoryName: category,
+            subCategoryName: subCategory,
+            images,
+            slug: name.toLowerCase(),
+            rating: 0,
+          },
+        });
+        console.log("done!");
+      } catch (err) {
+        if (err instanceof Prisma.PrismaClientKnownRequestError) {
+          console.log(err);
+        }
+        console.log(err);
+      }
       return "ok";
     }),
 });
 
 export type AppRouter = typeof appRouter;
-
-export async function uploadImage(image: any) {
-  const blobServiceClient = BlobServiceClient.fromConnectionString(
-    process.env.AZ_ACCOUNT ?? "",
-  );
-  const containerClient = blobServiceClient.getContainerClient("ecommerce");
-
-  const blobName = nanoid() + image.name;
-
-  const blockBlobClient = containerClient.getBlockBlobClient(blobName);
-  const buffer = new Uint8Array(await image.arrayBuffer()) as any;
-  await blockBlobClient.uploadData(buffer, {
-    blobHTTPHeaders: { blobContentType: image.type },
-  });
-  return blockBlobClient.url;
-}

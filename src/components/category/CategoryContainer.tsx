@@ -42,7 +42,7 @@ const CategoryContainer: FC<CategoryContainerProps> = ({ }) => {
       <Button
         asChild
         variant="outline"
-        className="w-56 h-12 font-semibold mt-1 text-white hover:text-white bg-orange-500 hover:bg-orange-500/80"
+        className="w-56 h-12 font-semibold mt-2 text-white hover:text-white bg-orange-500 hover:bg-orange-500/80"
       >
         <Link href="/categories">Explore All Category</Link>
       </Button>

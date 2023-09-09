@@ -1,5 +1,5 @@
 export const links = {
-  github: "https://github.com/bidhan690",
+  github: "https://github.com/bidhan690/next-ecommerce",
   instagram: "https://instagram.com/bidhan690",
   githubAccount: "https://github.com/bidhan690 ",
 };

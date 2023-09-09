@@ -13,10 +13,11 @@ import { AspectRatio } from "../ui/aspect-ratio";
 import Image from "next/image";
 import { Button } from "../ui/button";
 import { Icons } from "../icons";
+import { Product } from "@/types";
 
 interface productCardProps {
   className?: string;
-  product?: Pick<Product, "id" | "name" | "price" | "images">;
+  product?: Product
 }
 
 const ProductCard: FC<productCardProps> = ({ className, product }) => {
@@ -68,8 +69,8 @@ const ProductCard: FC<productCardProps> = ({ className, product }) => {
         </CardContent>
       </Link>
       <CardFooter className="p-2  justify-around">
-        <Button variant="outline" size="lg">
-          Preview
+        <Button asChild variant="outline" size="lg">
+          <Link href={`/product/${product?.id}`}>Preview</Link>
         </Button>
         <Button size="lg">Add to cart</Button>
       </CardFooter>

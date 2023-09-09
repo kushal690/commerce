@@ -5,18 +5,19 @@ import {
   PageHeaderHeading,
 } from "@/components/page-header";
 import { Shell } from "@/components/shells/shell";
+import { rsc } from "@/trpc-server/rsc";
 import { type Metadata } from "next";
 import { FC } from "react";
-import { products } from "../page";
 
-interface pageProps { }
+interface pageProps {}
 
 export const metadata: Metadata = {
   title: "Products",
   description: "Buy products from our stores",
 };
 
-const page: FC<pageProps> = ({ }) => {
+const page: FC<pageProps> = async ({}) => {
+  const products: any[] = await rsc.getAllProducts();
   return (
     <Shell>
       <PageHeader aria-labelledby="products-page-header">
