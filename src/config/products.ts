@@ -9,6 +9,15 @@ interface ProductSubCategory {
   slug: string;
 }
 
+export const sortOptions = [
+  { label: "Date: Old to new", value: "date.asc" },
+  { label: "Date: New to old", value: "date.desc" },
+  { label: "Price: Low to high", value: "price.asc" },
+  { label: "Price: High to low", value: "price.desc" },
+  { label: "Alphabetical: A to Z", value: "name.asc" },
+  { label: "Alphabetical: Z to A", value: "name.desc" },
+];
+
 export const productsCategories: ProductCategory[] = [
   {
     title: "Clothing",
@@ -98,6 +107,36 @@ export const productsCategories: ProductCategory[] = [
         title: "Luxury",
         description: "Stay on time with the latest luxury watches.",
         slug: "luxury",
+      },
+    ],
+  },
+  {
+    title: "shoes",
+    subCategories: [
+      {
+        title: "Low Tops",
+        description: "Rad low tops shoes for a stylish low-profile look.",
+        slug: "low-tops",
+      },
+      {
+        title: "High Tops",
+        description: "Elevate your style with rad high top shoes.",
+        slug: "high-tops",
+      },
+      {
+        title: "Slip-ons",
+        description: "Effortless style with rad slip-on shoes.",
+        slug: "slip-ons",
+      },
+      {
+        title: "Pros",
+        description: "Performance-driven rad shoes for the pros.",
+        slug: "pros",
+      },
+      {
+        title: "Sneakers",
+        description: "Classic and comfy rad sneakers.",
+        slug: "sneakers",
       },
     ],
   },

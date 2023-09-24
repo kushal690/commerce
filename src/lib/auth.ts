@@ -1,10 +1,11 @@
-import type { NextAuthOptions } from "next-auth";
+import { getServerSession, type NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import prisma from "./prismaClient";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import bcrypt from "bcryptjs";
 import GoogleProvider from "next-auth/providers/google";
 import Auth0Provider from "next-auth/providers/auth0";
+import { GetServerSidePropsContext } from "next";
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -72,3 +73,4 @@ export const authOptions: NextAuthOptions = {
     signIn: "/",
   },
 };
+

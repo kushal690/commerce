@@ -1,12 +1,12 @@
 "use client";
 import { Icons } from "@/components/icons";
-import { FC, useState } from "react";
+import { FC, Fragment, useState } from "react";
 import { Balancer } from "react-wrap-balancer";
 import QuantityCounter from "./QuantityCounter";
 import { cn, formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Product } from "@/types";
+import { Product } from "@prisma/client";
 
 interface ContainerProps {
   product: Product;
@@ -26,12 +26,11 @@ const Container: FC<ContainerProps> = ({ product }) => {
       </h1>
       <div className="flex gap-4">
         <div className="flex items-center gap-1">
-          <Icons.star size={18} fill="orange" color="orange" />
-          <Icons.star size={18} fill="orange" color="orange" />
-          <Icons.star size={18} fill="orange" color="orange" />
-          <Icons.star size={18} fill="orange" color="orange" />
-          <Icons.star size={18} fill="orange" color="orange" />
-          <h2 className="font-medium">{product.rating} Rating</h2>
+          {product.rating > 0 ? Array.from({ length: product.rating }).map((_, i) => (
+            <Icons.star key={i} size={18} fill="orange" color="orange" />
+          )) : null}
+
+          <h2 className="font-medium flex items-center">{product.rating} Rating</h2>
         </div>
         <div className="flex gap-1.5 items-center">
           <Icons.verified className="w-5 h-5" />
@@ -61,35 +60,47 @@ const Container: FC<ContainerProps> = ({ product }) => {
         Add to Cart
       </Button>
       <div className="flex gap-y-4 justify-between flex-col md:flex-row lg:flex-col">
+
         <div className="flex flex-col gap-y-4">
-          <h2 className="text-2xl font-semibold text-black">Select Size</h2>
+          {product.categoryName.toLowerCase() === 'clothing' ? (
+            <h2 className="text-2xl font-semibold text-black">Select Size</h2>
+          ) : null}
           <div className="flex gap-x-3">
-            {sizes.map(size => (
-              <Button key={size} variant="outline" onClick={() => setSelectedSize(size)} className={cn("", {
+
+            {product.categoryName.toLowerCase() === 'clothing' ? sizes?.map(size => {
+              return <Button key={size} variant="outline" onClick={() => setSelectedSize(size)} className={cn("", {
                 "bg-blue-700 text-white hover:text-white hover:bg-blue-700": size === selectedSize
               })}>{size}</Button>
-            ))}
+
+            })
+              : null}
           </div>
-        </div>
-        <div className="flex flex-col gap-y-4">
-          <h2 className="text-2xl font-semibold text-black">Choose Color</h2>
-          <div className="flex gap-x-3">
-            {colors.map(color => (
-              <div key={color} onClick={() => setSelectedColor(color)} className={cn(`w-10 h-10 flex justify-center items-center rounded-md ${bgVariants[color]}`)}><Icons.check className={cn("hidden", {
-                "block": color === selectedColor
-              })} color="white" /></div>
-            ))}
+
+          <div className="flex flex-col gap-y-4">
+            <h2 className="text-2xl font-semibold text-black">Choose Color</h2>
+            <div className="flex gap-x-3">
+              {colors.map(color => (
+                <div key={color} onClick={() => setSelectedColor(color)} className={cn(`w-10 h-10 flex justify-center items-center rounded-md ${bgVariants[color]}`)}><Icons.check className={cn("hidden", {
+                  "block": color === selectedColor
+                })} color="white" /></div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
       <div className="flex flex-col gap-y-4">
         <h2 className="text-2xl font-semibold text-black">Product Details</h2>
         <div className="flex flex-col gap-y-2">
-          <div className="flex justify-between text-gray-700 text-sm">
-            <h3>Size</h3>
-            <h3>{sizes.join(", ")}</h3>
-          </div>
-          <Separator />
+          {product.categoryName.toLowerCase() === 'clothing' ? (
+            <>
+              <div className="flex justify-between text-gray-700 text-sm">
+                <h3>Size</h3>
+                <h3>{sizes.join(", ")}</h3>
+              </div>
+              <Separator />
+            </>
+          ) : null}
+
           <div className="flex justify-between text-gray-700 text-sm">
             <h3>Color</h3>
             <h3>{colors.map((item) => item.charAt(0).toUpperCase() + item.slice(1)).join(", ")}</h3>

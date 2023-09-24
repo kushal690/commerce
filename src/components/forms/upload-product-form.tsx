@@ -11,13 +11,19 @@ import { uploadProductSchema } from "@/lib/validations/product";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { trpc } from "@/trpc-server";
-import FileDialog from "../FileDialog";
+const FileDialog = dynamic(() => import("../FileDialog"), {
+  ssr: false,
+  loading: () => <Skeleton className="w-full h-8 " />
+});
 import { useState, useTransition } from "react";
 import { FileWithPreview } from "@/types";
 import { uploadImages } from "@/_actions/uploadImages";
 import { Zoom } from "../zoom-image";
 import Image from "next/image";
 import { Icons } from "../icons";
+import dynamic from "next/dynamic";
+import { Skeleton } from "../ui/skeleton";
+import { toTitleCase } from "@/lib/utils";
 
 type Inputs = z.infer<typeof uploadProductSchema>
 
@@ -36,19 +42,24 @@ const UploadProductForm = ({ }) => {
 
   const [files, setFiles] = useState<FileWithPreview[] | null>(null)
   const [isPending, startTransition] = useTransition()
-  function onSubmit(data: Inputs) {
-    if (!data) return
-    startTransition(async () => {
-      const formData = new FormData()
-      for (let i = 0; i < data.images.length; i++) {
-        formData.append(`files${i}`, data.images[i]);
-      }
-      const links = await uploadImages(formData)
-      await mutation.mutateAsync({ ...data, images: links })
-      form.resetField()
-      setFiles(null)
-      toast({ description: "Successully added product." })
 
+  function onSubmit(data: Inputs) {
+    if (!data || !data.images) return
+    startTransition(async () => {
+      try {
+        const formData = new FormData()
+        for (let i = 0; i < data.images.length; i++) {
+          formData.append(`files${i}`, data.images[i]);
+        }
+        const links = await uploadImages(formData)
+        await mutation.mutateAsync({ ...data, images: links })
+        form.reset()
+        setFiles(null)
+        toast({ description: "Successully added product." })
+      } catch (err: any) {
+        const unknownErr = "Error while creating product";
+        toast({ variant: "destructive", description: err.message || unknownErr })
+      }
     })
 
   }
@@ -105,7 +116,7 @@ const UploadProductForm = ({ }) => {
                   <SelectContent>
                     <SelectGroup>
                       {productsCategories.map(item => (
-                        <SelectItem key={item.title} value={item.title.toLowerCase()} >{item.title}</SelectItem>
+                        <SelectItem key={item.title} value={item.title.toLowerCase()} >{toTitleCase(item.title)}</SelectItem>
                       ))}
                     </SelectGroup>
                   </SelectContent>
@@ -129,7 +140,7 @@ const UploadProductForm = ({ }) => {
                   <SelectContent>
                     <SelectGroup>
                       {subCategories.map(item => (
-                        <SelectItem key={item.value} value={item.value.toLowerCase()} >{item.label}</SelectItem>
+                        <SelectItem key={item.value} value={item.value.toLowerCase()} >{toTitleCase(item.label)}</SelectItem>
                       ))}
                     </SelectGroup>
                   </SelectContent>

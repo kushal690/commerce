@@ -9,5 +9,6 @@ export const siteConfig = {
   description: "Blitz is an fullstack e-commerce platform built with Next.js",
   url: "http:localhost:3000",
   image: "/images/logo.png",
-  creator: "Bidhan."
+  creator: "Bidhan.",
+  defaultPriceCurrency: "NPR",
 };

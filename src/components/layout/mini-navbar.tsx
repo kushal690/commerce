@@ -8,7 +8,6 @@ const MiniNavbar: FC<MiniNavbarProps> = ({ }) => {
   return (
     <div className="w-full px-2 flex justify-between lg:hidden">
       <MainLogo />
-      <LoginButton />
     </div>
   );
 };

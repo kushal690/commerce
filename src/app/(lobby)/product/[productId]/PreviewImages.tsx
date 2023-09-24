@@ -1,5 +1,6 @@
 "use client";
 import { Icons } from "@/components/icons";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -34,15 +35,15 @@ const PreviewImages: FC<PreviewImagesProps> = ({ images }) => {
 
   return (
     <div className="w-full p-2 justify-center items-center flex flex-col gap-y-3">
-      <div className="min-w-[220px] max-w-[600px]">
+      <AspectRatio ratio={1}>
         <Image
-          className=" h-[280px] md:h-[320px] lg:h-[610px] object-cover rounded-lg"
-          width={650}
-          height={650}
+          className="object-cover rounded-lg"
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           src={mainImage ?? "/images/product-placeholder.webp"}
           alt="images"
         />
-      </div>
+      </AspectRatio>
       {images.length > 1 && (
         <div className="flex justify-center items-center gap-3">
           <Button

@@ -1,10 +1,10 @@
 import { FileWithPath } from "react-dropzone";
 
 export type Product = {
-  id: number;
+  id: string;
   name: string;
   price: number;
-  description: string;
+  description: string | null;
   images: string[];
   categoryName: string;
   subCategoryName: string;
@@ -16,14 +16,14 @@ export type Product = {
 };
 
 type Category = {
-  id: number;
+  id: string;
   name: string;
   description?: string;
   slug: string;
 };
 
 type SubCategory = {
-  id: number;
+  id: string;
   name: string;
   categoryName?: string;
   description?: string;
@@ -33,3 +33,17 @@ type SubCategory = {
 export type FileWithPreview = FileWithPath & {
   preview: string;
 };
+
+export interface Option {
+  label: string
+  value: string
+  icon?: React.ComponentType<{ className?: string }>
+}
+
+export interface Cart_Item {
+  id: string;
+  productId: string;
+  quantity: number;
+  cartId: string;
+  product: Product;
+}

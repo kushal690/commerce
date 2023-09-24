@@ -30,3 +30,7 @@ export const uploadProductSchema = z.object({
 export const productIdSchema = z.object({
   id: z.string(),
 });
+
+export const filterProductsSchema = z.object({
+  take: z.number().optional(),
+})

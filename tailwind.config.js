@@ -16,6 +16,9 @@ module.exports = {
       },
     },
     extend: {
+      flex: {
+        full: "0 0 100%"
+      },
       fontFamily: {
         inter: ["var(--font-inter)", "sans-serif"],
         jua: ["var(--font-jua)", "sans-serif"],

@@ -5,13 +5,20 @@ import { Prisma } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import { authSchema } from "@/lib/validations/auth";
 import { emailSchema } from "@/lib/validations/email";
-
-import { productIdSchema, uploadProductSchema } from "@/lib/validations/product";
-import { z } from "zod";
+import {
+  filterProductsSchema,
+  productIdSchema,
+  uploadProductSchema,
+} from "@/lib/validations/product";
+import nodemailer from "nodemailer";
+import { render } from '@react-email/render';
+import NewsletterWelcomeEmail from "@/components/emails/newsletter-welcome-email"
+import { renderdedNewsletterWelcomeEmail } from "@/components/emails/renderedEmail";
 
 export const appRouter = router({
-  getAllProducts: procedure.query(async (opts) => {
+  getAllProducts: procedure.input(filterProductsSchema).query(async (opts) => {
     const products = await prisma.product.findMany({
+      take: opts.input?.take ?? undefined,
       include: {
         categories: true,
         subCategories: true,
@@ -35,7 +42,37 @@ export const appRouter = router({
         data: {
           email: opts.input.email,
         },
+
       });
+      var auth = {
+        auth: {
+
+
+          api_key: process.env.SMTP_API,
+          domain: process.env.SMTP_FROM
+        }
+      };
+
+      const transporter = nodemailer.createTransport({
+        host: "smtp.mailgun.org",
+        port: 587,
+        secure: false,
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: 'bidhan@',
+        }
+      })
+
+      const options = {
+        from: process.env.SMTP_USER,
+        to: opts.input.email,
+        subject: 'Blitz Newsletter Welcome Email',
+        html: renderdedNewsletterWelcomeEmail(opts.input.email, process.env.SMTP_FROM as string)
+      };
+
+      await transporter.sendMail(options)
+
+
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -46,9 +83,10 @@ export const appRouter = router({
           message: "You are already subscribed to our newsletter.",
         });
       }
+      console.log(error)
       throw new TRPCError({
         code: "INTERNAL_SERVER_ERROR",
-        message: "Error while subcribing to newsletter",
+        message: "Error while subscribing to newsletter",
       });
     }
   }),
@@ -91,54 +129,52 @@ export const appRouter = router({
         images,
       } = input;
       try {
-        let categories = await prisma.categories.findUnique({
-          where: { name: category.toLowerCase() },
-        });
-
-        if (!categories) {
-          categories = await prisma.categories.create({
-            data: {
+        const [categories, subCategories] = await Promise.all([
+          prisma.categories.upsert({
+            where: { name: category.toLowerCase() },
+            update: {},
+            create: {
               name: category,
               slug: category.toLowerCase(),
             },
-          });
-        }
-
-        let subCategories = await prisma.subCategories.findUnique({
-          where: { name: subCategory.toLowerCase() },
-        });
-
-        if (!subCategories) {
-          subCategories = await prisma.subCategories.create({
-            data: {
+          }),
+          prisma.subCategories.upsert({
+            where: { name: subCategory.toLowerCase() },
+            update: {},
+            create: {
               name: subCategory,
               slug: subCategory.toLowerCase(),
               categoryName: category,
             },
-          });
-        }
+          }),
+        ]);
+
         await prisma.product.create({
           data: {
             name,
             description,
             price,
             quantity,
-            categoryName: category,
-            subCategoryName: subCategory,
+            categoryName: categories.name,
+            subCategoryName: subCategories.name,
             images,
             slug: name.toLowerCase(),
             rating: 0,
           },
         });
-        console.log("done!");
       } catch (err) {
         if (err instanceof Prisma.PrismaClientKnownRequestError) {
           console.log(err);
         }
-        console.log(err);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Error while creating product",
+        });
       }
       return "ok";
     }),
 });
 
 export type AppRouter = typeof appRouter;
+
+

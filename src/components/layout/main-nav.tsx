@@ -2,21 +2,28 @@
 import Image from 'next/image'
 import React, { FC } from 'react'
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from '../ui/navigation-menu'
-import { cn } from '@/lib/utils'
+import { cn, toTitleCase } from '@/lib/utils'
 import Link from 'next/link'
 import SearchBar from '../SearchBar'
 import MainLogo from '../MainLogo'
 import { productsCategories } from '@/config/products'
 import LoginButton from '../auth/LoginButton'
 import { siteConfig } from '@/config/site'
+import { Session } from 'next-auth'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from '../ui/dropdown-menu'
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
+import Logout from '../auth/LogoutButton'
+import { Icons } from '../icons'
+import { Separator } from '../ui/separator'
 
 interface MainNavProps {
-
+  session: Session | null
 }
 
-const MainNav: FC<MainNavProps> = ({ }) => {
+const MainNav: FC<MainNavProps> = ({ session }) => {
+
   return <>
-    <div className="px-4 py-3 w-full hidden lg:flex justify-between items-center">
+    <div className="py-3 w-full hidden lg:flex justify-between items-center">
       <div className='flex gap-x-4'>
         <MainLogo />
         <div className='flex gap-x-4'>
@@ -56,12 +63,12 @@ const MainNav: FC<MainNavProps> = ({ }) => {
               </NavigationMenuItem>
               {productsCategories.map(category => (
                 <NavigationMenuItem key={category.title}>
-                  <NavigationMenuTrigger>{category.title}</NavigationMenuTrigger>
+                  <NavigationMenuTrigger>{toTitleCase(category.title)}</NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className='p-3 md:w-[400px] lg:w-[500px] grid grid-cols-2 gap-3'>
-                      <ListItem href={`/categories/${category.title.toLowerCase()}`} title={category.title}>All {category.title}.</ListItem>
+                      <ListItem href={`/categories/${category.title.toLowerCase()}`} title={toTitleCase(category.title)}>All {category.title}.</ListItem>
                       {category.subCategories.map((subCategory) => {
-                        return <ListItem key={subCategory.title} href={`/categories/${category.title.toLowerCase()}/${subCategory.slug}`} title={subCategory.title}>{subCategory.description}</ListItem>
+                        return <ListItem key={subCategory.title} href={`/categories/${category.title.toLowerCase()}/${subCategory.slug}`} title={toTitleCase(subCategory.title)}>{subCategory.description}</ListItem>
                       })}
                     </ul>
                   </NavigationMenuContent>
@@ -72,10 +79,7 @@ const MainNav: FC<MainNavProps> = ({ }) => {
           </NavigationMenu>
         </div>
       </div>
-      <div className='flex items-center gap-x-3'>
-        <SearchBar />
-        <LoginButton />
-      </div>
+      <SearchBar />
     </div>
   </>
 }

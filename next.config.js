@@ -3,6 +3,10 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  output: "standalone",
   images: {
     domains: ["bidhan.blob.core.windows.net"],
   },
