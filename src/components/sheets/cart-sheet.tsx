@@ -32,7 +32,7 @@ const CartSheet: FC<cartSheetProps> = async ({ }) => {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button size="icon" variant="outline" className="relative">
+        <Button size="icon" variant="outline" className="p-1 relative">
           {count > 0 && (
             <Badge
               variant="secondary"

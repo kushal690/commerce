@@ -44,22 +44,14 @@ export const appRouter = router({
         },
 
       });
-      var auth = {
-        auth: {
-
-
-          api_key: process.env.SMTP_API,
-          domain: process.env.SMTP_FROM
-        }
-      };
-
+    
       const transporter = nodemailer.createTransport({
         host: "smtp.mailgun.org",
         port: 587,
         secure: false,
         auth: {
           user: process.env.SMTP_USER,
-          pass: 'bidhan@',
+          pass: process.env.SMTP_PASS,
         }
       })
 
@@ -126,8 +118,8 @@ export const appRouter = router({
         quantity,
         category,
         subCategory,
-        images,
       } = input;
+    const images = input.images as string[]
       try {
         const [categories, subCategories] = await Promise.all([
           prisma.categories.upsert({
@@ -157,7 +149,7 @@ export const appRouter = router({
             quantity,
             categoryName: categories.name,
             subCategoryName: subCategories.name,
-            images,
+            images ,
             slug: name.toLowerCase(),
             rating: 0,
           },

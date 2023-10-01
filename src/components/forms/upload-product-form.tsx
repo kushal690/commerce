@@ -1,6 +1,6 @@
 "use client"
 import { useForm } from "react-hook-form";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, UncontrolledFormMessage } from "../ui/form";
 import { toast } from "../ui/use-toast";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
@@ -23,7 +23,7 @@ import Image from "next/image";
 import { Icons } from "../icons";
 import dynamic from "next/dynamic";
 import { Skeleton } from "../ui/skeleton";
-import { toTitleCase } from "@/lib/utils";
+import { isArrayOfFile, toTitleCase } from "@/lib/utils";
 
 type Inputs = z.infer<typeof uploadProductSchema>
 
@@ -48,11 +48,13 @@ const UploadProductForm = ({ }) => {
     startTransition(async () => {
       try {
         const formData = new FormData()
-        for (let i = 0; i < data.images.length; i++) {
-          formData.append(`files${i}`, data.images[i]);
-        }
-        const links = await uploadImages(formData)
-        await mutation.mutateAsync({ ...data, images: links })
+        const images = isArrayOfFile(data.images)
+        console.log(data.images)
+        //  for (let i = 0; i < data.images.length; i++) {
+        //    formData.append(`files${i}`, data.images[i]);
+        // }
+        // const links = await uploadImages(formData)
+        // await mutation.mutateAsync({ ...data, images: links })
         form.reset()
         setFiles(null)
         toast({ description: "Successully added product." })
@@ -66,41 +68,31 @@ const UploadProductForm = ({ }) => {
 
   return <Form {...form}>
     <form autoFocus={false} className="flex flex-col space-y-4" onSubmit={(...args) => void form.handleSubmit(onSubmit)(...args)}>
-      <FormField
-        control={form.control}
-        name="name"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Name</FormLabel>
-            <FormControl>
-              <Input
-                {...field}
-                type="text"
-                placeholder="Type product name here."
-                className=""
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <FormField
-        control={form.control}
-        name="description"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Description</FormLabel>
-            <FormControl>
-              <Textarea
-                {...field}
-                placeholder="Type product description here."
-                className=""
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+
+      <FormItem>
+        <FormLabel>Name</FormLabel>
+        <FormControl>
+          <Input
+            {...form.register("name")}
+            type="text"
+            placeholder="Type product name here."
+            className=""
+          />
+        </FormControl>
+        <UncontrolledFormMessage message={form.formState.errors.name?.message} />
+      </FormItem>
+
+      <FormItem>
+        <FormLabel>Description</FormLabel>
+        <FormControl>
+          <Textarea
+            {...form.register("description")}
+            placeholder="Type product description here."
+            className=""
+          />
+        </FormControl>
+        <UncontrolledFormMessage message={form.formState.errors.description?.message} />
+      </FormItem>
       <div className="grid grid-cols-2 gap-3">
         <FormField
           control={form.control}
@@ -109,9 +101,9 @@ const UploadProductForm = ({ }) => {
             <FormItem>
               <FormLabel>Category</FormLabel>
               <FormControl>
-                <Select defaultValue={field.value} onValueChange={(value) => field.onChange(value)} >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
+                <Select value={field.value} onValueChange={(value) => field.onChange(value)} >
+                  <SelectTrigger className="capitalize">
+                    <SelectValue placeholder={field.value} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
@@ -150,74 +142,70 @@ const UploadProductForm = ({ }) => {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="price"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Price</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  type="number"
-                  placeholder="Type product price here."
-                  className=""
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="quantity"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>In Stock</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  type="number"
-                  placeholder="Type product quantity here."
-                  className=""
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+
+        <FormItem>
+          <FormLabel>Price</FormLabel>
+          <FormControl>
+            <Input
+              {...form.register("price")}
+              type="number"
+              placeholder="Type product price here."
+              className=""
+            />
+          </FormControl>
+
+
+          <UncontrolledFormMessage message={form.formState.errors.price?.message} />
+        </FormItem>
+
+
+        <FormItem>
+          <FormLabel>In Stock</FormLabel>
+          <FormControl>
+            <Input
+              {...form.register("quantity")}
+              type="number"
+              placeholder="Type product quantity here."
+              className=""
+            />
+          </FormControl>
+
+          <UncontrolledFormMessage message={form.formState.errors.price?.message} />
+        </FormItem>
+
 
       </div>
-      <FormField
-        control={form.control}
-        name="images"
-        render={({ field }) => (
-          <FormItem className="flex w-full flex-col gap-1.5">
-            <FormLabel>Images</FormLabel>
-            {files?.length ? (
-              <div className="flex items-center gap-2">
-                {files.map((file, i) => (
-                  <Zoom key={i}>
-                    <Image
-                      src={file.preview}
-                      alt={file.name}
-                      className="h-20 w-20 shrink-0 rounded-md object-cover object-center"
-                      width={80}
-                      height={80}
-                    />
-                  </Zoom>
-                ))}
-              </div>
-            ) : null}
 
-            <FormControl >
-              <FileDialog name="images" disabled={isPending} setValue={form.setValue} files={files} setFiles={setFiles} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-      <Button disabled={isPending} size="lg" className="w-36" type="submit">
+      <FormItem className="flex w-full flex-col gap-1.5">
+        <FormLabel>Images</FormLabel>
+        {files?.length ? (
+          <div className="flex items-center gap-2">
+            {files.map((file, i) => (
+              <Zoom key={i}>
+                <Image
+                  src={file.preview}
+                  alt={file.name}
+                  className="h-20 w-20 shrink-0 rounded-md object-cover object-center"
+                  width={80}
+                  height={80}
+                />
+              </Zoom>
+            ))}
+          </div>
+        ) : null}
+
+        <FormControl >
+          <FileDialog name="images"
+            disabled={isPending}
+            setValue={form.setValue}
+            files={files} setFiles={setFiles} />
+        </FormControl>
+        <UncontrolledFormMessage message={form.formState.errors.images?.message} />
+      </FormItem>
+
+      <Button disabled={isPending} size="lg" className="w-36" onClick={() =>
+        void form.trigger(["name", "description", "price", "quantity"])
+      }>
         {isPending ? <> <Icons.spinner className="w-4 h-4 mr-2 animate-spin" /> <span> Adding... </span> </> : "Add Product"}
       </Button>
     </form>

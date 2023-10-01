@@ -25,7 +25,15 @@ export const addToCartAction = async (
 
   if (!cartId || cartId.length !== 24) {
     const cart = await prisma.cart.create({
-      data: {},
+      data: {
+        items: {
+          create: {
+            productId: input.productId,
+            quantity: input.quantity,
+
+          }
+        }
+      },
     });
     cookieStore.set("cartId", cart.id);
     revalidatePath("/");

@@ -1,29 +1,29 @@
+import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth";
+import Link from "next/link";
 import { FC } from "react";
+import LoginButton from "../auth/LoginButton";
+import Logout from "../auth/LogoutButton";
+import { Icons } from "../icons";
+import CartSheet from "../sheets/cart-sheet";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { Separator } from "../ui/separator";
 import MainNav from "./main-nav";
 import MiniNavbar from "./mini-navbar";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import Link from "next/link";
-import { Icons } from "../icons";
-import { Separator } from "../ui/separator";
-import Logout from "../auth/LogoutButton";
-import LoginButton from "../auth/LoginButton";
-import CartSheet from "../sheets/cart-sheet";
 
 interface siteHeaderProps { }
 
 const SiteHeader: FC<siteHeaderProps> = async ({ }) => {
   const session = await getServerSession(authOptions);
   return (
-    <header className="sticky top-0 z-40 w-full px-4 border-b bg-background">
+    <header className="sticky top-0 z-40 w-full px-4 border-b bg-background ">
       <div className="flex h-16 space-x-2 items-center">
         <MainNav session={session} />
         <MiniNavbar />

@@ -1,5 +1,6 @@
 import { FileWithPath } from "react-dropzone";
 
+
 export type Product = {
   id: string;
   name: string;

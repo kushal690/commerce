@@ -8,6 +8,7 @@ import ProductCard from "@/components/cards/product-card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { rsc } from "@/trpc-server/rsc";
+import MainProductImageCarousel from "@/components/main-page-image-carousel";
 
 export default async function Home() {
   const products = await rsc.getAllProducts({ take: 8 });
@@ -17,9 +18,9 @@ export default async function Home() {
       <div id="hero" className="p-4 flex justify-around ">
         <div className="flex flex-col gap-y-4">
           <FeaturedProduct />
-          <ProductSliderContainer products={products} />
+          <MainProductImageCarousel products={products} />
         </div>
-        <div className="flex flex-col gap-y-4">
+        <div className="hidden lg:flex flex-col gap-y-4">
           <BillBoard />
           <DailyDeals />
         </div>
@@ -29,7 +30,7 @@ export default async function Home() {
       <Separator />
       <div className="px-8 py-3 flex flex-col gap-y-3">
         <h2 className="text-3xl font-semibold">Featured Products</h2>
-        <div className="grid grid-cold-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {products.map((product) => {
             return <ProductCard key={product.id} product={product} />;
           })}

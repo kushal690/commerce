@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { catchError, cn, formatPrice } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import Link from "next/link";
 import { AspectRatio } from "../ui/aspect-ratio";
 import Image from "next/image";

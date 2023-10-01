@@ -2,20 +2,21 @@ import { Cart_Item } from "@/types";
 import { FC } from "react";
 import Image from "next/image";
 import { Icons } from "../icons";
-import { formatPrice } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { Separator } from "../ui/separator";
 import UpdateCart from "./update-cart";
 
 interface cartItemsProps {
   items: Cart_Item[];
+  className?: string;
 }
 
-const CartItems: FC<cartItemsProps> = ({ items }) => {
+const CartItems: FC<cartItemsProps> = ({ items,className }) => {
   return items.map((item) => {
     const product = item.product;
     return (
       <>
-        <div key={item.id} className="flex justify-between items-center">
+        <div key={item.id} className={cn("flex justify-between items-center")}>
           <div className="flex space-x-4">
             <div className="relative aspect-square h-16 w-16 min-w-fit overflow-hidden rounded">
               {product.images?.length ? (

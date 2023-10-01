@@ -37,7 +37,7 @@ const page: FC<pageProps> = async ({ searchParams }) => {
     price_range: typeof price_range === "string" ? price_range.split("-") : null,
   });
 
-  const pageCount = Math.ceil(product.count / limit);
+const pageCount = Math.ceil(product.count / limit);
 
   return (
     <Shell>

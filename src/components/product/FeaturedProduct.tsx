@@ -29,16 +29,16 @@ const FeaturedProduct: FC<FeaturedProductProps> = ({ }) => {
   const colors = ["red", "teal", "green", "blue"];
 
   return (
-    <div className="w-full md:w-[650px] h-72 flex justify-between px-4 py-2 bg-white rounded-lg shadow-default">
+    <div className="w-full md:w-[650px] h-80 md:h-72 flex justify-between px-1 overflow-auto md:px-4 py-2 bg-white rounded-lg shadow-default">
       <Image
         src="/icons/headphone.png"
         alt="Featured product"
         width={250}
         height={250}
-        className="w-[230px] h-[230px] object-cover "
+        className="w-[150px] h-[150px] md:w-[230px] md:h-[230px] object-cover "
       />
       <div className="flex flex-col gap-y-3">
-        <h2 className="text-xl font-medium">
+        <h2 className="text-lg md:text-xl font-medium">
           Beats Studio3 Wireless Headphone
         </h2>
         <div className="flex gap-x-1">
@@ -72,27 +72,27 @@ const FeaturedProduct: FC<FeaturedProductProps> = ({ }) => {
               );
             })}
           </div>
-          <div className="w-24 h-8 px-2 flex items-center justify-between bg-zinc-100 rounded-3xl">
+          <div className="w-full md:w-24 h-8 px-2 flex items-center justify-between bg-zinc-100 rounded-3xl">
             <Button variant="outline"
-              className="w-6 h-6 bg-white rounded-full "
+              className=" w-4 h-4 md:w-6 md:h-6 bg-white rounded-full "
               size="icon"
               onClick={() => handleQuantity("decrement")}
             >
               <Icons.remove
                 name="minus"
-                className="w-6 h-6 text-gray-700 "
+                className="w-3 h-3 md:w-6 md:h-6 text-gray-700 "
               />
 
             </Button>
             <h2 className="text-gray-700">{quantity}</h2>
             <Button variant="outline"
-              className="w-6 h-6 bg-white rounded-full "
+              className=" w-4 h-4 md:w-6 md:h-6 bg-white rounded-full "
               size="icon"
               onClick={() => handleQuantity("increment")}
             >
               <Icons.add
                 name="plus"
-                className="w-6 h-6  text-gray-700 "
+                className="w-3 h-3 md:w-6 md:h-6  text-gray-700 "
               />
             </Button>
           </div>
@@ -100,23 +100,22 @@ const FeaturedProduct: FC<FeaturedProductProps> = ({ }) => {
         <div className="flex justify-around font-semibold">
           <Button
             onClick={handleFavorite}
-            variant="outline" className={`w-16 h-10 `}>
+            variant="outline" className="h-8 w-8 md:w-16 md:h-10 ">
             <Icons.heart
-              className={cn(`w-6 h-6 fill-white ${textVariants[color]}`, {
+              className={cn(`w-4 h-4 md:w-6 md:h-6 fill-white ${textVariants[color]}`, {
                 [fillVariants[color]]: isFavorite,
               })}
             />
           </Button>
           <Button
+            className="text-xs md:text-sm"
             variant="outline"
-
-
           >
             Add to cart
           </Button>
           <Button
             variant="outline"
-            className="px-7 bg-orange-500 text-white hover:bg-orange-500/80 hover:text-white "
+            className="text-xs md:text-sm px-1 md:px-7 bg-orange-500 text-white hover:bg-orange-500/80 hover:text-white "
           >
             Buy now
           </Button>

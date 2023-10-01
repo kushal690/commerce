@@ -23,8 +23,15 @@ export const uploadProductSchema = z.object({
     .min(1, { message: "Must select subcategory" })
     .max(50, { message: "Must be less than 50 characters" }),
   images: z
-    .any()
-    .refine((file: File) => file?.length !== 0, "File is required"),
+    .unknown()
+    .refine((val) => {
+      if (!Array.isArray(val)) return false
+      if (val.some((file) => !(file instanceof File))) return false
+      return true
+    }, "Must be an array of File")
+    .optional()
+    .nullable()
+    .default(null),
 });
 
 export const productIdSchema = z.object({
